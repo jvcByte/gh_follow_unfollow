@@ -1,4 +1,4 @@
-module github.com/jvcByte/github-unfollow
+module github.com/jvcByte/gh_follow_unfollow
 
 go 1.25.0
 

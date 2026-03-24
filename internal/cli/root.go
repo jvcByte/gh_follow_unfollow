@@ -14,7 +14,7 @@ type CLI struct {
 func NewCLI() *CLI {
 	cli := &CLI{
 		rootCmd: &cobra.Command{
-			Use:   "github-unfollow",
+			Use:   "gh_follow_unfollow",
 			Short: "Follow & Unfollow GitHub users",
 			Long:  "Manager GitHub users in your account (Follow/Unfollow)",
 		},

@@ -7,7 +7,7 @@ before:
 
 builds:
   - main: ./cmd/main.go
-    binary: 'github-unfollow'
+    binary: 'gh_follow_unfollow'
     env:
       - CGO_ENABLED=0
       - GOGC=150
@@ -57,6 +57,6 @@ changelog:
 release:
   github:
     owner: 'jvcByte'
-    name: 'github-unfollow'
+    name: 'gh_follow_unfollow'
   draft: false
   prerelease: auto
