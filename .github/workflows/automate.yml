@@ -1,0 +1,40 @@
+name: Automated GitHub Unfollow
+
+on:
+  schedule:
+    # Runs daily at 2 AM UTC (adjust timezone as needed)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+env:
+  GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WORKER_COUNT: ${{ secrets.WORKER_COUNT || 1 }}
+  QUEUE_SIZE: ${{ secrets.QUEUE_SIZE || 3 }}
+  TIME_DELAY_MS: ${{ secrets.TIME_DELAY_MS || 2000 }}
+
+jobs:
+  unfollow:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Build the application
+      run: go build -o github-followers ./cmd
+
+    - name: Run unfollow command
+      run: ./github-followers unfollow --force
+
+    - name: Run follow command (optional)
+      if: ${{ secrets.FOLLOW_TARGET_USERNAME != '' }}
+      run: ./github-followers follow ${{ secrets.FOLLOW_TARGET_USERNAME }} --force
