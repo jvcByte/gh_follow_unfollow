@@ -26,7 +26,7 @@ func NewGitHubManager(token string, username string) *GitHubManager {
 	}
 }
 
-func (gm *GitHubManager) GetFollowers(name *string) ([]string, error) {
+func (gm *GitHubManager) GetFollowers(name *string, limit int) ([]string, error) {
 	var allFollowers []string
 	username := gm.username
 	if name != nil {
@@ -41,6 +41,10 @@ func (gm *GitHubManager) GetFollowers(name *string) ([]string, error) {
 		}
 		for _, follower := range followers {
 			allFollowers = append(allFollowers, follower.GetLogin())
+			// Stop early if we've reached the limit (accounting for filtering later)
+			if limit > 0 && len(allFollowers) >= limit*10 {
+				return allFollowers, nil
+			}
 		}
 		if resp.NextPage == 0 {
 			break

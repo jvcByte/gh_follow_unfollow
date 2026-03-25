@@ -49,7 +49,7 @@ func followCommand() *cobra.Command {
 				return fmt.Errorf("failed to get limit flag: %w", err)
 			}
 			gm := git_hub_manager.NewGitHubManager(cfg.GitHubToken, cfg.GitHubUsername)
-			followers, err = gm.GetFollowers(&username)
+			followers, err = gm.GetFollowers(&username, limit)
 			if err != nil {
 				return err
 			}

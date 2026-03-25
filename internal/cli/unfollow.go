@@ -46,7 +46,7 @@ func unFollowCommand() *cobra.Command {
 				return fmt.Errorf("failed to get users flag: %w", err)
 			}
 			gm := git_hub_manager.NewGitHubManager(cfg.GitHubToken, cfg.GitHubUsername)
-			followers, err = gm.GetFollowers(nil)
+			followers, err = gm.GetFollowers(nil, 0)
 			if err != nil {
 				return err
 			}
