@@ -10,15 +10,15 @@ A powerful Go-based CLI tool to manage your GitHub following relationships. Foll
 
 ## Features
 
-- 🔍 **Smart Following**: Follow followers of specific users who don't follow you back
-- 🗑️ **Cleanup**: Unfollow users who don't follow you back
-- ⚡ **Efficient**: Handles large follower lists with early-exit optimization
-- 🛡️ **Safe**: Interactive confirmation before bulk operations
-- 🚀 **Fast**: Concurrent processing with configurable worker pool
-- 🔐 **Secure**: OAuth2 token-based GitHub API authentication
-- ⚙️ **Flexible**: Environment variables and command-line flags
-- ⏱️ **Rate-Limited**: Configurable delays to respect GitHub API limits
-- 🤖 **Automated**: GitHub Actions workflows for daily operations
+- **Smart Following**: Follow followers of specific users who don't follow you back
+- **Cleanup**: Unfollow users who don't follow you back
+- **Efficient**: Handles large follower lists with early-exit optimization
+- **Safe**: Interactive confirmation before bulk operations
+- **Fast**: Concurrent processing with configurable worker pool
+- **Secure**: OAuth2 token-based GitHub API authentication
+- **Flexible**: Environment variables and command-line flags
+- **Rate-Limited**: Configurable delays to respect GitHub API limits
+- **Automated**: GitHub Actions workflows for daily operations
 
 ## Table of Contents
 
