@@ -11,8 +11,8 @@ on:
         default: "false"
 
 env:
-  GITHUB_USERNAME: ${{ secrets.USERNAME }}
-  GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  GH_USERNAME: ${{ secrets.USERNAME }}
+  GH_TOKEN: ${{ secrets.TOKEN }}
   WORKER_COUNT: 1
   QUEUE_SIZE: 5
   TIME_DELAY_MS: 2000

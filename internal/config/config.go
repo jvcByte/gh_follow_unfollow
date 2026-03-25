@@ -10,16 +10,17 @@ import (
 )
 
 type Config struct {
-	GitHubToken    string `mapstructure:"github_token"`
-	GitHubUsername string `mapstructure:"github_username"`
-	WorkerCount    int    `mapstructure:"worker_count"`
-	QueueSize      int    `mapstructure:"queue_size"`
-	TimeDelay      int    `mapstructure:"time_delay_ms"`
+	GitHubToken    string
+	GitHubUsername string
+	WorkerCount    int
+	QueueSize      int
+	TimeDelay      int
 }
 
 func Load() (*Config, error) {
 	v := viper.New()
 
+	v.SetEnvPrefix("")
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
@@ -35,9 +36,12 @@ func Load() (*Config, error) {
 		}
 	}
 
-	cfg := &Config{}
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("unmarshal config failed: %w", err)
+	cfg := &Config{
+		GitHubToken:    v.GetString("GH_TOKEN"),
+		GitHubUsername: v.GetString("GH_USERNAME"),
+		WorkerCount:    getIntWithDefault(v, "WORKER_COUNT", 1),
+		QueueSize:      getIntWithDefault(v, "QUEUE_SIZE", 3),
+		TimeDelay:      getIntWithDefault(v, "TIME_DELAY_MS", 2000),
 	}
 
 	if err := validate(cfg); err != nil {
@@ -61,4 +65,11 @@ func validate(cfg *Config) error {
 		return errors.New("app.queue_size must be > 0")
 	}
 	return nil
+}
+
+func getIntWithDefault(v *viper.Viper, key string, defaultVal int) int {
+	if val := v.GetInt(key); val > 0 {
+		return val
+	}
+	return defaultVal
 }
