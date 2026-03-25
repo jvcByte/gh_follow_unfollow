@@ -1,6 +1,6 @@
 # GitHub Followers Manager
 
-A powerful Go-based command-line tool to manage your GitHub following relationships. Follow users who follow a specific user but don't follow you, or unfollow users who don't follow you back.
+A powerful Go-based CLI tool to manage your GitHub following relationships. Follow users from specific accounts or unfollow users who don't follow you back.
 
 [![Go Version](https://img.shields.io/badge/go-1.24+-blue?logo=go)](https://golang.org/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jvcByte/gh_followers.svg)](https://pkg.go.dev/github.com/jvcByte/gh_followers)
@@ -8,284 +8,210 @@ A powerful Go-based command-line tool to manage your GitHub following relationsh
 [![Go Report Card](https://goreportcard.com/badge/github.com/jvcByte/gh_followers)](https://goreportcard.com/report/github.com/jvcByte/gh_followers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ Features
+## Features
 
-- 🔍 **Follow Management**: Follow followers of a specific user who don't follow you back
-- 🗑️ **Unfollow Cleanup**: Unfollow users who don't follow you back
-- ⚡ **Efficient Processing**: Handle large numbers of followers/following with pagination
-- 🛡️ **Safe Execution**: Interactive confirmation before bulk operations
-- 🚀 **Concurrent Processing**: Configurable worker pool for fast execution
-- 🔐 **Secure Authentication**: OAuth2 token-based GitHub API authentication
-- ⚙️ **Flexible Configuration**: Environment variables and command-line flags
-- ⏱️ **Rate Limiting**: Configurable delays to respect GitHub API limits
+- 🔍 **Smart Following**: Follow followers of specific users who don't follow you back
+- 🗑️ **Cleanup**: Unfollow users who don't follow you back
+- ⚡ **Efficient**: Handles large follower lists with early-exit optimization
+- 🛡️ **Safe**: Interactive confirmation before bulk operations
+- 🚀 **Fast**: Concurrent processing with configurable worker pool
+- 🔐 **Secure**: OAuth2 token-based GitHub API authentication
+- ⚙️ **Flexible**: Environment variables and command-line flags
+- ⏱️ **Rate-Limited**: Configurable delays to respect GitHub API limits
+- 🤖 **Automated**: GitHub Actions workflows for daily operations
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
-- [Project Structure](#-project-structure)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Automated Workflows](#automated-workflows)
+- [Project Structure](#project-structure)
+- [Security](#security)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
 - Go 1.24 or higher
-- A GitHub account
-- A GitHub Personal Access Token with the `user:follow` scope
+- GitHub account
+- GitHub Personal Access Token with `user:follow` scope
 
-### Option 1: Build from source
+### Option 1: Build from Source
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/jvcByte/gh_followers.git
-   cd gh_followers
-   ```
-
-2. Install dependencies:
-   ```bash
-   go mod download
-   ```
-
-3. Build the application:
-   ```bash
-   go build -o github-followers ./cmd
-   ```
-
-### Option 2: Install via Go
 ```bash
-go install github.com/jvcByte/gh_followers@latest
+git clone https://github.com/jvcByte/gh_followers.git
+cd gh_followers
+go build -o github-followers ./cmd
 ```
 
-## ⚙️ Configuration
+### Option 2: Install via Go
+
+```bash
+go install github.com/jvcByte/gh_followers/cmd@latest
+```
+
+## Configuration
 
 ### GitHub Personal Access Token
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
 2. Generate a new token with the `user:follow` scope
-3. Copy the token for configuration
+3. Copy the token
 
 ### Environment Variables
 
-Create a `.env` file in the project root or set environment variables:
+Create a `.env` file in the project root:
 
 ```env
 # Required
-GITHUB_USERNAME=your_github_username
-GITHUB_TOKEN=your_github_personal_access_token
+GH_USERNAME=your_github_username
+GH_TOKEN=ghp_your_token_here
 
-# Optional (with defaults)
-WORKER_COUNT=1      # Number of concurrent workers (default: 1)
-QUEUE_SIZE=3        # Size of the worker queue (default: 3)
-TIME_DELAY_MS=2000  # Delay between API calls in milliseconds (default: 2000)
+# Optional (defaults shown)
+WORKER_COUNT=1      # Concurrent workers (1-5 recommended)
+QUEUE_SIZE=3        # Task queue buffer size
+TIME_DELAY_MS=2000  # Delay between API calls (1000-3000 recommended)
 ```
 
-> **Note**: You can copy `.env.example` to `.env` and fill in your credentials.
+> Copy `.env.example` to `.env` and fill in your credentials.
 
-## 🚦 Usage
-
-The tool provides two main commands: `follow` and `unfollow`.
+## Usage
 
 ### Follow Command
 
 Follow followers of a specific user who don't already follow you:
 
 ```bash
-# Basic usage - follow followers of 'username' who don't follow you
-./github-followers follow username
+# Follow up to 5 followers of torvalds
+./github-followers follow torvalds --limit 5
 
-# Skip confirmation prompt
+# Follow without confirmation
 ./github-followers follow username --force
-./github-followers follow username -f
+
+# Follow with custom limit
+./github-followers follow username --limit 10
 ```
+
+**Flags:**
+- `--limit, -l`: Maximum number of users to follow (default: 0 = no limit)
+- `--force, -f`: Skip confirmation prompt
 
 ### Unfollow Command
 
 Unfollow users who don't follow you back:
 
 ```bash
-# Show users who don't follow you back (dry run)
+# Show users and confirm before unfollowing
 ./github-followers unfollow
 
-# Actually unfollow users who don't follow you back without confirm
-./github-followers unfollow --f
+# Unfollow without confirmation
 ./github-followers unfollow --force
 ```
 
-## 🏗️ Project Structure
+**Flags:**
+- `--force, -f`: Skip confirmation prompt
+
+### Help
+
+```bash
+./github-followers --help
+./github-followers follow --help
+./github-followers unfollow --help
+```
+
+## Automated Workflows
+
+The project includes GitHub Actions workflows for automated daily operations:
+
+### Daily Follow Workflow
+
+Automatically follows 1 user from each of 30 top developer accounts daily (30 users/day total):
+
+- **Schedule**: Daily at 8 AM UTC
+- **Trigger**: Manual via workflow_dispatch
+- **Log**: Maintains `follow-log.json` with daily activity
+
+### Weekly Unfollow Workflow
+
+Automatically unfollows users who don't follow you back:
+
+- **Schedule**: Weekly on Sundays at 8 AM UTC
+- **Trigger**: Manual via workflow_dispatch
+
+### Setup for Automated Workflows
+
+1. Fork this repository
+2. Go to Settings → Secrets and variables → Actions
+3. Add secrets:
+   - `GH_USERNAME`: Your GitHub username
+   - `GH_TOKEN`: Your personal access token with `user:follow` scope
+4. Enable GitHub Actions in your fork
+
+## Project Structure
 
 ```
 gh_followers/
-├── cmd/                 # Main application entry point
+├── .github/
+│   └── workflows/       # GitHub Actions workflows
+├── cmd/
+│   └── main.go         # Application entry point
 ├── internal/
-│   ├── cli/            # Command-line interface implementation
+│   ├── cli/            # CLI commands (follow, unfollow)
 │   ├── config/         # Configuration management
-│   ├── git_hub_manager/# GitHub API client and operations
-│   ├── helper/         # Utility and helper functions
-│   └── worker/         # Worker pool implementation
-├── .env.example        # Example environment variables
-├── .gitignore          # Git ignore file
+│   ├── git_hub_manager/# GitHub API client
+│   ├── helper/         # Utility functions
+│   └── worker/         # Concurrent worker pool
+├── .env.example        # Example configuration
 ├── go.mod              # Go module definition
-├── go.sum              # Go module checksums
-└── main.go             # Application entry point
+└── README.md           # This file
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Unfollow Command
-
-Unfollow users who don't follow you back:
-
-```bash
-# Basic usage - unfollow users who don't follow you back
-./gh_followers unfollow
-
-# Skip confirmation prompt
-./gh_followers unfollow --force
-./gh_followers unfollow -f
-```
-
-**Example workflow:**
-1. Tool fetches your followers list
-2. Tool fetches your following list
-3. Identifies users you follow who don't follow you back
-4. Shows the list and asks for confirmation (unless `--force` is used)
-5. Unfollows the users concurrently with rate limiting
-
-### Command-Line Flags
-
-Both commands support the following flags:
-
-- `--force, -f`: Skip interactive confirmation prompt (use with caution)
-- `--help, -h`: Show help information
-
-### Help Command
-
-```bash
-# Show general help
-./gh_followers --help
-
-# Show help for specific commands
-./gh_followers follow --help
-./gh_followers unfollow --help
-```
-
-## Configuration Options
-
-### Worker Pool Settings
-
-- **WORKER_COUNT**: Number of concurrent workers for API calls (default: 1)
-  - Higher values = faster execution but more API rate limit pressure
-  - Recommended: 1-5 for most use cases
-
-- **QUEUE_SIZE**: Size of the task queue (default: 3)
-  - Buffer size for pending tasks
-  - Should be >= WORKER_COUNT
-
-- **TIME_DELAY_MS**: Delay between API calls in milliseconds (default: 2000)
-  - Helps avoid GitHub API rate limits
-  - Lower values = faster execution but higher risk of rate limiting
-  - Recommended: 1000-3000ms
-
-### Example Configurations
-
-**Conservative (safe for large operations):**
-```env
-WORKER_COUNT=1
-QUEUE_SIZE=3
-TIME_DELAY_MS=3000
-```
-
-**Balanced:**
-```env
-WORKER_COUNT=2
-QUEUE_SIZE=3
-TIME_DELAY_MS=2000
-```
-
-## Examples
-
-
-### Using environment variables
-```bash
-# Set token and username via environment
-export GITHUB_USERNAME="myusername"
-export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
-export WORKER_COUNT=2
-export TIME_DELAY_MS=1500
-
-./gh_followers unfollow
-```
-
-## Architecture
-
-The project is organized into the following components:
-
-- **`main.go`**: Application entry point
-- **`cmd/`**: Cobra CLI commands
-  - `root.go`: Root command setup
-  - `follow.go`: Follow command implementation
-  - `unfollow.go`: Unfollow command implementation
-- **`internal/`**: Internal packages
-  - `config/`: Configuration management with Viper
-  - `git_hub_manager/`: GitHub API client wrapper
-  - `worker/`: Worker pool for concurrent processing
-  - `helper/`: Utility functions
 
 ## Security
 
-- Your GitHub token is only used to authenticate with the GitHub API
-- The token requires only the `user:follow` scope - no access to repositories or other data
-- Tokens are loaded from environment variables, never hardcoded
-- Never share your `.env` file or commit it to version control
-- The `.env` file is included in `.gitignore` by default
+- Tokens require only `user:follow` scope (no repo access)
+- Tokens loaded from environment variables only
+- Never commit `.env` to version control (included in `.gitignore`)
+- Use GitHub secrets for automated workflows
 
 ## Rate Limiting
 
-GitHub API has rate limits:
-- 5,000 requests per hour for authenticated requests
-- Each follow/unfollow operation uses 1 API call
-- The tool includes built-in delays (configurable via `TIME_DELAY_MS`)
-- Use conservative settings for large operations
+GitHub API limits:
+- 5,000 requests/hour for authenticated requests
+- Each follow/unfollow = 1 API call
+- Built-in configurable delays via `TIME_DELAY_MS`
+
+**Recommended settings for large operations:**
+```env
+WORKER_COUNT=1
+TIME_DELAY_MS=3000
+```
 
 ## Troubleshooting
 
-### Common Issues
+### Authentication Failed
+- Verify `GH_TOKEN` is correct and has `user:follow` scope
+- Check token hasn't expired
 
-**"Authentication failed" error:**
-- Verify your `GITHUB_TOKEN` is correct and has `user:follow` scope
-- Check that the token hasn't expired
-
-**"Rate limit exceeded" error:**
+### Rate Limit Exceeded
 - Increase `TIME_DELAY_MS` value
-- Reduce `WORKER_COUNT`
-- Wait for the rate limit to reset (1 hour)
+- Reduce `WORKER_COUNT` to 1
+- Wait for rate limit reset (1 hour)
 
-**"User not found" error:**
-- Verify the username exists and is public
-- Some users may have restricted follower lists
+### Command Hangs on Large Accounts
+- Use `--limit` flag to fetch only needed followers
+- Example: `./github-followers follow torvalds --limit 10`
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome! Please:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
@@ -295,8 +221,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Disclaimer
 
-This tool is provided as-is, without any warranties. Use it at your own risk. The maintainers are not responsible for any issues caused by using this tool. Always review the list of users before confirming bulk operations.
+This tool is provided as-is without warranties. Use at your own risk. Always review user lists before confirming bulk operations.
 
-## Support
+---
 
-If you find this tool useful, please consider giving it a ⭐ on GitHub!
+If you find this tool useful, please ⭐ the repository!
