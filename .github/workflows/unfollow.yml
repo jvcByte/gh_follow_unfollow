@@ -1,8 +1,9 @@
-name: Unfollow Non-Followers (3-day delay)
+name: Unfollow Non-Followers (1-day delay)
 
 on:
   schedule:
-    - cron: "0 9 * * *" # daily at 9 AM UTC (1hr after follow runs)
+    - cron: "0 9 * * *" # daily at 9 AM UTC
+    - cron: "0 21 * * *" # daily at 9 PM UTC
   workflow_dispatch:
     inputs:
       dry_run:
@@ -32,7 +33,7 @@ jobs:
 
       - run: go build -o github-followers ./cmd
 
-      - name: Find users to unfollow (followed 3+ days ago, no follow-back)
+      - name: Find users to unfollow (followed 1+ days ago, no follow-back)
         id: find_users
         run: |
           [ ! -f follow-log.json ] && echo "No follow-log.json found, skipping." && exit 0
@@ -45,9 +46,9 @@ jobs:
               log = json.load(f)
 
           today = datetime.now(timezone.utc).date()
-          cutoff = today - timedelta(days=3)
+          cutoff = today - timedelta(days=1)
 
-          # Collect users from unprocessed batches older than 3 days
+          # Collect users from unprocessed batches older than 1 day
           to_unfollow = []
           for entry in log:
               if not entry.get("processed") and \
@@ -67,7 +68,7 @@ jobs:
               print("No users eligible for unfollow yet.")
           EOF
 
-      - name: Unfollow non-followers from 3-day-old batches
+      - name: Unfollow non-followers from 1-day-old batches
         if: steps.find_users.outputs.has_users == 'true' && github.event.inputs.dry_run != 'true'
         run: |
           USERS="${{ steps.find_users.outputs.users }}"
@@ -91,7 +92,7 @@ jobs:
               log = json.load(f)
 
           today = datetime.now(timezone.utc).date()
-          cutoff = today - timedelta(days=3)
+          cutoff = today - timedelta(days=1)
 
           for entry in log:
               if not entry.get("processed") and \

@@ -2,7 +2,8 @@ name: Daily Follow
 
 on:
   schedule:
-    - cron: "0 8 * * *" # every day at 8 AM UTC
+    - cron: "0 8 * * *" # daily at 8 AM UTC
+    - cron: "0 20 * * *" # daily at 8 PM UTC
   workflow_dispatch:
 
 env:
