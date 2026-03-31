@@ -26,7 +26,7 @@ jobs:
           go-version: "1.25"
           cache: false
 
-      - run: go build -o github-followers ./cmd
+      - run: go build -o gh_followers ./cmd
 
       - name: Follow 1 user per account (30 total/day)
         run: |
@@ -43,7 +43,7 @@ jobs:
           > /tmp/follow-output.txt
           for account in "${TOP_ACCOUNTS[@]}"; do
             echo "→ Following 1 user from $account..."
-            ./github-followers follow "$account" --force --limit 1 | tee -a /tmp/follow-output.txt
+            ./gh_followers follow "$account" --force --limit 1 | tee -a /tmp/follow-output.txt
           done
 
       - name: Update follow log

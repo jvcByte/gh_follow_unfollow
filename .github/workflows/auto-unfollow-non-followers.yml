@@ -1,0 +1,39 @@
+name: Auto Unfollow Non-Followers
+
+on:
+  schedule:
+    - cron: "0 10 */3 * *" # every 3 days at 11 AM WAT (10 AM UTC)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (list only, no unfollow)"
+        required: false
+        default: "false"
+
+env:
+  GH_USERNAME: ${{ secrets.GH_USERNAME }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WORKER_COUNT: 1
+  QUEUE_SIZE: 10
+  TIME_DELAY_MS: 2000
+
+jobs:
+  unfollow-non-followers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - run: go build -o gh_followers ./cmd
+
+      - name: Unfollow users who don't follow back
+        if: github.event.inputs.dry_run != 'true'
+        run: ./gh_followers unfollow --force
+
+      - name: Dry run — list users who would be unfollowed
+        if: github.event.inputs.dry_run == 'true'
+        run: ./gh_followers unfollow

@@ -1,0 +1,29 @@
+name: Auto Follow Back
+
+on:
+  schedule:
+    - cron: "0 10 * * *" # daily at 11 AM WAT (10 AM UTC)
+  workflow_dispatch:
+
+env:
+  GH_USERNAME: ${{ secrets.GH_USERNAME }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WORKER_COUNT: 1
+  QUEUE_SIZE: 10
+  TIME_DELAY_MS: 2000
+
+jobs:
+  follow-back:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - run: go build -o gh_followers ./cmd
+
+      - name: Follow back users who follow jvcByte
+        run: ./gh_followers follow jvcByte --force

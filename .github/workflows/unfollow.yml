@@ -31,7 +31,7 @@ jobs:
           go-version: "1.25"
           cache: false
 
-      - run: go build -o github-followers ./cmd
+      - run: go build -o gh_followers ./cmd
 
       - name: Find users to unfollow (followed 1+ days ago, no follow-back)
         id: find_users
@@ -73,13 +73,13 @@ jobs:
         run: |
           USERS="${{ steps.find_users.outputs.users }}"
           # Build --users flag: comma-separated list
-          ./github-followers unfollow --force --users "$USERS"
+          ./gh_followers unfollow --force --users "$USERS"
 
       - name: Dry run — show who would be unfollowed
         if: steps.find_users.outputs.has_users == 'true' && github.event.inputs.dry_run == 'true'
         run: |
           USERS="${{ steps.find_users.outputs.users }}"
-          ./github-followers unfollow --users "$USERS"
+          ./gh_followers unfollow --users "$USERS"
 
       - name: Mark processed batches in log
         if: steps.find_users.outputs.has_users == 'true' && github.event.inputs.dry_run != 'true'
