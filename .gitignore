@@ -9,7 +9,7 @@
 *.so
 *.dylib
 *.iml
-github-followers
+gh_followers
 # Test binary, built with `go test -c`
 *.test
 

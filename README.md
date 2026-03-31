@@ -45,7 +45,7 @@ A powerful Go-based CLI tool to manage your GitHub following relationships. Foll
 ```bash
 git clone https://github.com/jvcByte/gh_followers.git
 cd gh_followers
-go build -o github-followers ./cmd
+go build -o gh_followers ./cmd
 ```
 
 ### Option 2: Install via Go
